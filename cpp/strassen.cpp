@@ -5,6 +5,9 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <bits/stdc++.h>
+#include <chrono>
+#include "readFile.hpp"
 // credit: https://github.com/MartinThoma/matrix-multiplication/blob/master/C%2B%2B/strassen-algorithm.cpp
 
 // Set LEAF_SIZE to 1 if you want to the pure strassen algorithm
@@ -13,33 +16,30 @@
 int leafsize;
 
 using namespace std;
-
+using namespace std::chrono;
 /*
  * Implementation of the strassen algorithm, similar to
  * http://en.wikipedia.org/w/index.php?title=Strassen_algorithm&oldid=498910018#Source_code_of_the_Strassen_algorithm_in_C_language
  */
 
-void strassen(vector<vector<int>> &A,
-              vector<vector<int>> &B,
-              vector<vector<int>> &C, unsigned int tam);
-unsigned int nextPowerOfTwo(int n);
-void strassenR(vector<vector<int>> &A,
-               vector<vector<int>> &B,
-               vector<vector<int>> &C,
+void strassen(vector<vector<double>> &A,
+              vector<vector<double>> &B,
+              vector<vector<double>> &C, unsigned int tam);
+// unsigned int nextPowerOfTwo(double n);
+void strassenR(vector<vector<double>> &A,
+               vector<vector<double>> &B,
+               vector<vector<double>> &C,
                int tam);
-void sum(vector<vector<int>> &A,
-         vector<vector<int>> &B,
-         vector<vector<int>> &C, int tam);
-void subtract(vector<vector<int>> &A,
-              vector<vector<int>> &B,
-              vector<vector<int>> &C, int tam);
+void sum(vector<vector<double>> &A,
+         vector<vector<double>> &B,
+         vector<vector<double>> &C, int tam);
+// void subtract(vector<vector<double>> &A,
+//               vector<vector<double>> &B,
+//               vector<vector<double>> &C, int tam);
 
-void printMatrix(vector<vector<int>> matrix, int n);
-void read(string filename, vector<vector<int>> &A, vector<vector<int>> &B);
-
-void ikjalgorithm(vector<vector<int>> A,
-                  vector<vector<int>> B,
-                  vector<vector<int>> &C, int n)
+void ikjalgorithm(vector<vector<double>> A,
+                  vector<vector<double>> B,
+                  vector<vector<double>> &C, int n)
 {
     for (int i = 0; i < n; i++)
     {
@@ -53,9 +53,43 @@ void ikjalgorithm(vector<vector<int>> A,
     }
 }
 
-void strassenR(vector<vector<int>> &A,
-               vector<vector<int>> &B,
-               vector<vector<int>> &C, int tam)
+void sum(vector<vector<double>> &A,
+         vector<vector<double>> &B,
+         vector<vector<double>> &C, int tam)
+{
+    int i, j;
+
+    for (i = 0; i < tam; i++)
+    {
+        for (j = 0; j < tam; j++)
+        {
+            C[i][j] = A[i][j] + B[i][j];
+        }
+    }
+}
+
+unsigned int customNextPowerOfTwo(int n)
+{
+    return pow(2, int(ceil(log2(n))));
+}
+
+void subtract(vector<vector<double>> &A,
+              vector<vector<double>> &B,
+              vector<vector<double>> &C, int tam)
+{
+    int i, j;
+
+    for (i = 0; i < tam; i++)
+    {
+        for (j = 0; j < tam; j++)
+        {
+            C[i][j] = A[i][j] - B[i][j];
+        }
+    }
+}
+void strassenR(vector<vector<double>> &A,
+               vector<vector<double>> &B,
+               vector<vector<double>> &C, int tam)
 {
     if (tam <= leafsize)
     {
@@ -67,8 +101,8 @@ void strassenR(vector<vector<int>> &A,
     else
     {
         int newTam = tam / 2;
-        vector<int> inner(newTam);
-        vector<vector<int>>
+        vector<double> inner(newTam);
+        vector<vector<double>>
             a11(newTam, inner), a12(newTam, inner), a21(newTam, inner), a22(newTam, inner),
             b11(newTam, inner), b12(newTam, inner), b21(newTam, inner), b22(newTam, inner),
             c11(newTam, inner), c12(newTam, inner), c21(newTam, inner), c22(newTam, inner),
@@ -148,19 +182,14 @@ void strassenR(vector<vector<int>> &A,
     }
 }
 
-unsigned int nextPowerOfTwo(int n)
-{
-    return pow(2, int(ceil(log2(n))));
-}
-
-void strassen(vector<vector<int>> &A,
-              vector<vector<int>> &B,
-              vector<vector<int>> &C, unsigned int n)
+void strassen(vector<vector<double>> &A,
+              vector<vector<double>> &B,
+              vector<vector<double>> &C, unsigned int n)
 {
     //unsigned int n = tam;
-    unsigned int m = nextPowerOfTwo(n);
-    vector<int> inner(m);
-    vector<vector<int>> APrep(m, inner), BPrep(m, inner), CPrep(m, inner);
+    unsigned int m = customNextPowerOfTwo(n);
+    vector<double> inner(m);
+    vector<vector<double>> APrep(m, inner), BPrep(m, inner), CPrep(m, inner);
 
     for (unsigned int i = 0; i < n; i++)
     {
@@ -181,127 +210,32 @@ void strassen(vector<vector<int>> &A,
     }
 }
 
-void sum(vector<vector<int>> &A,
-         vector<vector<int>> &B,
-         vector<vector<int>> &C, int tam)
+void recordTimes(string filename)
 {
-    int i, j;
+    string directory = "../matrices/" + filename;
+    std::ofstream myfile;
+    myfile.open("../benchmarks.csv", std::ios_base::app); // append instead of overwrite
+    vector<vector<double>> matrix = fill_matrix(directory);
+    vector<vector<double>> res(matrix.size(), vector<double>(matrix[0].size(), 0.));
 
-    for (i = 0; i < tam; i++)
+    for (int i = 0; i < 1; i++)
     {
-        for (j = 0; j < tam; j++)
-        {
-            C[i][j] = A[i][j] + B[i][j];
-        }
+        auto start = high_resolution_clock::now();
+        strassen(matrix, matrix, res, matrix.size());
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<milliseconds>(stop - start);
+        myfile << "cpp,strassen," << filename << "," << res.size() << "," << duration.count() << "\n";
     }
+    myfile.close();
 }
 
-void subtract(vector<vector<int>> &A,
-              vector<vector<int>> &B,
-              vector<vector<int>> &C, int tam)
+int main()
 {
-    int i, j;
-
-    for (i = 0; i < tam; i++)
-    {
-        for (j = 0; j < tam; j++)
-        {
-            C[i][j] = A[i][j] - B[i][j];
-        }
-    }
+    recordTimes("can_256.mtx");
+    // recordTimes("bcspwr05.mtx");
+    // recordTimes("bcspwr07.mtx");
+    // recordTimes("bcspwr08.mtx");
+    // recordTimes("bcsstk08.mtx");
 }
-
-int getMatrixSize(string filename)
-{
-    string line;
-    ifstream infile;
-    infile.open(filename.c_str());
-    getline(infile, line);
-    return count(line.begin(), line.end(), '\t') + 1;
-}
-
-void read(string filename, vector<vector<int>> &A, vector<vector<int>> &B)
-{
-    string line;
-    FILE *matrixfile = freopen(filename.c_str(), "r", stdin);
-
-    if (matrixfile == 0)
-    {
-        cerr << "Could not read file " << filename << endl;
-        return;
-    }
-
-    int i = 0, j, a;
-    while (getline(cin, line) && !line.empty())
-    {
-        istringstream iss(line);
-        j = 0;
-        while (iss >> a)
-        {
-            A[i][j] = a;
-            j++;
-        }
-        i++;
-    }
-
-    i = 0;
-    while (getline(cin, line))
-    {
-        istringstream iss(line);
-        j = 0;
-        while (iss >> a)
-        {
-            B[i][j] = a;
-            j++;
-        }
-        i++;
-    }
-
-    fclose(matrixfile);
-}
-
-void printMatrix(vector<vector<int>> matrix, int n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if (j != 0)
-            {
-                cout << "\t";
-            }
-            cout << matrix[i][j];
-        }
-        cout << endl;
-    }
-}
-
-int main(int argc, char *argv[])
-{
-    string filename;
-    if (argc < 3)
-    {
-        filename = "2000.in";
-    }
-    else
-    {
-        filename = argv[2];
-    }
-
-    if (argc < 5)
-    {
-        leafsize = 16;
-    }
-    else
-    {
-        leafsize = atoi(argv[4]);
-    }
-
-    int n = getMatrixSize(filename);
-    vector<int> inner(n);
-    vector<vector<int>> A(n, inner), B(n, inner), C(n, inner);
-    read(filename, A, B);
-    strassen(A, B, C, n);
-    printMatrix(C, n);
-    return 0;
-}
+// ! https://bitsploit.blogspot.com/2017/07/optimizing-matrix-multiplication-using.html
+//! g++ strassen.cpp readFile.cpp -o out

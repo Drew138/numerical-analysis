@@ -4,19 +4,7 @@ Intro to Algorithms Strassen"""
 
 # Import Libray. I only used numpy for numpy array. None of the functions implemented in numpy has been used during matrix calculations
 import numpy as np
-import time
-
-
-def read_input(input):
-    """ Both inputs are stored in the input.txt file """
-    array = np.loadtxt(input, dtype='i', delimiter=' ')
-    # Seperate array
-    array_first, array_second = np.split(array, 2, axis=0)
-    return array_first, array_second
-
-
-def save_ouput(output):
-    output_array = np.savetxt("output.txt", output, delimiter=' ')
+from fillMatrix import recordTimes
 
 
 def strassen(array_first, array_second):
@@ -71,8 +59,8 @@ def strassen(array_first, array_second):
 
 
 if __name__ == "__main__":
-    array_first, array_second = read_input('input.txt')
-    start_time = time.time()
-    output = strassen(array_first, array_second)
-    print("TIME TAKEN: ", time.time()-start_time)
-    save_ouput(output)
+    recordTimes("can_256.mtx", strassen, "strassen")
+    # recordTimes("bcspwr05.mtx", strassen, "strassen")
+    # recordTimes("bcspwr07.mtx", strassen, "strassen")
+    # recordTimes("bcspwr08.mtx", strassen, "strassen")
+    # recordTimes("bcsstk08.mtx", strassen, "strassen")

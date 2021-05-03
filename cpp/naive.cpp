@@ -1,17 +1,21 @@
 #include <cstdio>
+#include <chrono>
+#include <vector>
+#include <bits/stdc++.h>
+#include <iostream>
+#include <fstream>
+#include "readFile.hpp"
 
 using namespace std;
+using namespace std::chrono;
 
-int A[100][100], B[100][100], R[100][100];
-
-// Matrix A is p columns and m rows. Matrix B is n columns and p rows.
-void matrix_multiplication(int p, int m, int n)
+void naive_multiply(vector<vector<double>> &A, vector<vector<double>> &B, vector<vector<double>> R)
 {
-    for (int i = 0; i < m; i++)
+    for (int i = 0; i < A.size(); i++)
     {
-        for (int j = 0; j < n; j++)
+        for (int j = 0; j < B.size(); j++)
         {
-            for (int k = 0; k < p; k++)
+            for (int k = 0; k < R.size(); k++)
             {
                 R[i][j] += A[i][k] * B[k][j];
             }
@@ -19,35 +23,32 @@ void matrix_multiplication(int p, int m, int n)
     }
 }
 
+void recordTimes(string filename)
+{
+    string directory = "../matrices/" + filename;
+    std::ofstream myfile;
+    myfile.open("../benchmarks.csv", std::ios_base::app); // append instead of overwrite
+    vector<vector<double>> matrix = fill_matrix(directory);
+    vector<vector<double>> res(matrix.size(), vector<double>(matrix[0].size(), 0.));
+
+    for (int i = 0; i < 1; i++)
+    {
+        auto start = high_resolution_clock::now();
+        naive_multiply(matrix, matrix, res);
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<milliseconds>(stop - start);
+        myfile << "cpp,naive," << filename << "," << res.size() << "," << duration.count() << "\n";
+    }
+    myfile.close();
+}
+
 int main()
 {
-    int p, m, n;
-    scanf("%d%d%d", &p, &m, &n);
-    for (int i = 0; i < m; i++)
-    {
-        for (int j = 0; j < p; j++)
-        {
-            scanf("%d", &A[i][j]);
-        }
-    }
-    for (int i = 0; i < p; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            scanf("%d", &B[i][j]);
-        }
-    }
-
-    matrix_multiplication(p, m, n);
-
-    for (int i = 0; i < m; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            printf("%d ", R[i][j]);
-        }
-        printf("\n");
-    }
-
-    return 0;
+    recordTimes("can_256.mtx");
+    // recordTimes("bcspwr05.mtx");
+    // recordTimes("bcspwr07.mtx");
+    // recordTimes("bcspwr08.mtx");
+    // recordTimes("bcsstk08.mtx");
 }
+
+//! g++ naive.cpp readFile.cpp -o out

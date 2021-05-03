@@ -1,16 +1,4 @@
-
-
-# A = [[12, 7, 3],
-#     [4, 5, 6],
-#     [7, 8, 9]]
-
-# # take a 3x4 matrix
-# B = [[5, 8, 1, 2],
-#     [6, 7, 3, 0],
-#     [4, 5, 9, 1]]
-
-def read_matrices():
-    pass
+from fillMatrix import recordTimes
 
 
 def naive(A, B):
@@ -21,6 +9,9 @@ def naive(A, B):
 
 
 if __name__ == '__main__':
-    A, B = read_matrices()
-    res = naive(A, B)
-    print(res)
+
+    recordTimes("bcspwr04.mtx", naive, "naive")
+    recordTimes("bcspwr05.mtx", naive, "naive")
+    recordTimes("bcspwr07.mtx", naive, "naive")
+    recordTimes("bcspwr08.mtx", naive, "naive")
+    recordTimes("bcsstk08.mtx", naive, "naive")
