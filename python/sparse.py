@@ -58,7 +58,7 @@ def recordTimes(filename, functionName):
 
 if __name__ == '__main__':
 
-    recordTimes("can_256.mtx", "sparse")
+    recordTimes("delaunay_n10.mtx", "sparse")
     # recordTimes("bcspwr05.mtx", "sparse")
     # recordTimes("bcspwr07.mtx", "sparse")
     # recordTimes("bcspwr08.mtx", "sparse")

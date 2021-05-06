@@ -24,3 +24,17 @@ python,strassen,can_256.mtx,256,24193.09973716736
 cpp,strassen,can_256.mtx,256,31190
 cpp,naive,can_256.mtx,256,329
 python,sparse,can_256.mtx,256,444.15926933288574
+cpp,sparse,can_256.mtx,256,45
+cpp,sparse,can_256.mtx,256,40
+cpp,sparse,can_256.mtx,256,34
+cpp,sparse,can_256.mtx,256,34
+cpp,sparse,can_256.mtx,256,34
+cpp,sparse,delaunay_n10.mtx,1024,112
+cpp,sparse,delaunay_n10.mtx,1024,108
+cpp,sparse,delaunay_n10.mtx,1024,105
+cpp,sparse,delaunay_n10.mtx,1024,105
+cpp,sparse,delaunay_n10.mtx,1024,104
+cpp,naive,delaunay_n10.mtx,1024,29922
+cpp,naive,delaunay_n10.mtx,1024,40673
+python,sparse,delaunay_n10.mtx,1024,2152.461290359497
+python,naive,delaunay_n10.mtx,1024,302858.81185531616

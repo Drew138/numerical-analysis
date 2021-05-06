@@ -44,7 +44,7 @@ void recordTimes(string filename)
 
 int main()
 {
-    recordTimes("can_256.mtx");
+    recordTimes("delaunay_n10.mtx");
     // recordTimes("bcspwr05.mtx");
     // recordTimes("bcspwr07.mtx");
     // recordTimes("bcspwr08.mtx");

@@ -12,7 +12,7 @@ def recordTimes(filename, function, functionName):
     matrix = fillMatrix(directory)
     with open("../benchmarks.csv", "a") as f:
         writer = csv.writer(f)
-        for _ in range(5):
+        for _ in range(1):
             start = time.time()
             function(matrix, matrix)
             end = time.time()
