@@ -38,3 +38,10 @@ cpp,naive,delaunay_n10.mtx,1024,29922
 cpp,naive,delaunay_n10.mtx,1024,40673
 python,sparse,delaunay_n10.mtx,1024,2152.461290359497
 python,naive,delaunay_n10.mtx,1024,302858.81185531616
+cpp,strassen,can_256.mtx,256,188
+cpp,strassen,can_256.mtx,256,180
+cpp,strassen2,can_256.mtx,256,191
+cpp,strassen2,delaunay_n10.mtx,1024,9132
+cpp,strassen,delaunay_n10.mtx,1024,177314
+cpp,naive,delaunay_n10.mtx,1024,29699
+cpp,strassen,can_256.mtx,256,3539
