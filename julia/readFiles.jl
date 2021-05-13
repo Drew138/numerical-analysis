@@ -2,10 +2,11 @@ using naive
 using MatrixMarket
 using strassens
 using CSV
+using sparse
 # using BenchmarkTools
 
 
-function writeTimes(n::integer,file::string, func::function, functionName::string)
+function writeTimes(n::integer,file::String, func::function, functionName::String)
     dir = "../matrices/"
     filename = dir + filename
     matrix = MatrixMarket.mmread(filename)
@@ -15,9 +16,9 @@ function writeTimes(n::integer,file::string, func::function, functionName::strin
         (language=["julia"], algorithm=[functionName], 
         filename=[file], 
         matrix_size=[size(matrix)], 
-        time=[time]))
+        time=[time]), append=true)
     end
-
+end
 
 function runBenchmarks()
     writeTimes(5,"can_256.mtx", )
@@ -30,3 +31,5 @@ function runBenchmarks()
     writeTimes(5,"gre_512.mtx", )
     writeTimes(5,"Hamrle1.mtx", )
     writeTimes(5,"ibm32.mtx", )
+
+end
