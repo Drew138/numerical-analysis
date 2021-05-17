@@ -1,7 +1,7 @@
 # credit: https://andrew.gibiansky.com/blog/mathematics/matrix-multiplication/
 
 # Standard matrix multiplication algorithm. 
-function mult{T}(x :: Matrix{T}, y :: Matrix{T})
+function mult{T}(x::Matrix{T}, y::Matrix{T})
     # Check that the sizes of these matrices match.
     (r1, c1) = size(x)
     (r2, c2) = size(y)

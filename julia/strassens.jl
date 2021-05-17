@@ -4,7 +4,7 @@
 Strassen's matrix multiplication algorithm.
 Use dynamic padding in order to reduce required auxiliary memory.
 """
-function strassen(x::Matrix, y::Matrix)
+function strassen(x, y)
     # Check that the sizes of these matrices match.
     (r1, c1) = size(x)
     (r2, c2) = size(y)
@@ -62,14 +62,14 @@ function strassen(x::Matrix, y::Matrix)
         a11 = a[1:half_rows, 1:half_cols]
         b11 = b[1:half_rows, 1:half_cols]
 
-        a12 = a[1:half_rows, half_cols+1:size(a, 2)]
-        b12 = b[1:half_rows, half_cols+1:size(a, 2)]
+        a12 = a[1:half_rows, half_cols + 1:size(a, 2)]
+        b12 = b[1:half_rows, half_cols + 1:size(a, 2)]
 
-        a21 = a[half_rows+1:size(a, 1), 1:half_cols]
-        b21 = b[half_rows+1:size(a, 1), 1:half_cols]
+        a21 = a[half_rows + 1:size(a, 1), 1:half_cols]
+        b21 = b[half_rows + 1:size(a, 1), 1:half_cols]
 
-        a22 = a[half_rows+1:size(a, 1), half_cols+1:size(a, 2)]
-        b22 = b[half_rows+1:size(a, 1), half_cols+1:size(a, 2)]
+        a22 = a[half_rows + 1:size(a, 1), half_cols + 1:size(a, 2)]
+        b22 = b[half_rows + 1:size(a, 1), half_cols + 1:size(a, 2)]
 
         # Compute intermediate values.
         multip(x, y) = block_mult(x, y, half_rows, half_cols)
@@ -95,25 +95,25 @@ function strassen(x::Matrix, y::Matrix)
     block_mult(x, y, r, c)
 end
 
-const A = [[1, 2] [3, 4]]
-const B = [[5, 6] [7, 8]]
-const C = [[1, 1, 1, 1] [2, 4, 8, 16] [3, 9, 27, 81] [4, 16, 64, 256]]
-const D = [[4, -3, 4/3, -1/4] [-13/3, 19/4, -7/3, 11/24] [3/2, -2, 7/6, -1/4] [-1/6, 1/4, -1/6, 1/24]]
-const E = [[1, 2, 3, 4] [5, 6, 7, 8] [9, 10, 11, 12] [13, 14, 15, 16]]
-const F = [[1, 0, 0, 0] [0, 1, 0, 0] [0, 0, 1, 0] [0, 0, 0, 1]]
+# const A = [[1, 2] [3, 4]]
+# const B = [[5, 6] [7, 8]]
+# const C = [[1, 1, 1, 1] [2, 4, 8, 16] [3, 9, 27, 81] [4, 16, 64, 256]]
+# const D = [[4, -3, 4/3, -1/4] [-13/3, 19/4, -7/3, 11/24] [3/2, -2, 7/6, -1/4] [-1/6, 1/4, -1/6, 1/24]]
+# const E = [[1, 2, 3, 4] [5, 6, 7, 8] [9, 10, 11, 12] [13, 14, 15, 16]]
+# const F = [[1, 0, 0, 0] [0, 1, 0, 0] [0, 0, 1, 0] [0, 0, 0, 1]]
 
-""" For pretty printing: change matrix to integer if it is within 0.00000001 of an integer """
-intprint(s, mat) = println(s, map(x -> Int(round(x, digits=8)), mat)')
+# """ For pretty printing: change matrix to integer if it is within 0.00000001 of an integer """
+# intprint(s, mat) = println(s, map(x -> Int(round(x, digits=8)), mat)')
 
-intprint("Regular multiply: ", A' * B')
-intprint("Strassen multiply: ", strassen(Matrix(A'), Matrix(B')))
-intprint("Regular multiply: ", C * D)
-intprint("Strassen multiply: ", strassen(C, D))
-intprint("Regular multiply: ", E * F)
-intprint("Strassen multiply: ", strassen(E, F))
+# intprint("Regular multiply: ", A' * B')
+# intprint("Strassen multiply: ", strassen(Matrix(A'), Matrix(B')))
+# intprint("Regular multiply: ", C * D)
+# intprint("Strassen multiply: ", strassen(C, D))
+# intprint("Regular multiply: ", E * F)
+# intprint("Strassen multiply: ", strassen(E, F))
 
-const r = sqrt(2)/2
-const R = [[r, r] [-r, r]]
+# const r = sqrt(2)/2
+# const R = [[r, r] [-r, r]]
 
-intprint("Regular multiply: ", R * R)
-intprint("Strassen multiply: ", strassen(R,R))
+# intprint("Regular multiply: ", R * R)
+# intprint("Strassen multiply: ", strassen(R,R))
