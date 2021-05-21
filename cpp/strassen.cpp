@@ -1,213 +1,235 @@
-#include <sstream>
-#include <string>
-#include <fstream>
 #include <iostream>
+#include <ctime>
+#include <cstdlib>
 #include <vector>
-#include <algorithm>
 #include <cmath>
-#include <bits/stdc++.h>
+#include <fstream>
 #include <chrono>
 #include "readFile.hpp"
-// credit: https://github.com/MartinThoma/matrix-multiplication/blob/master/C%2B%2B/strassen-algorithm.cpp
-
-// Set LEAF_SIZE to 1 if you want to the pure strassen algorithm
-// otherwise, the ikj-algorithm will be applied when the split
-// matrices are as small as LEAF_SIZE x LEAF_SIZE
-int leafsize;
 
 using namespace std;
-using namespace std::chrono;
-/*
- * Implementation of the strassen algorithm, similar to
- * http://en.wikipedia.org/w/index.php?title=Strassen_algorithm&oldid=498910018#Source_code_of_the_Strassen_algorithm_in_C_language
- */
 
-void strassen(vector<vector<double>> &A,
-              vector<vector<double>> &B,
-              vector<vector<double>> &C, unsigned int tam);
-// unsigned int nextPowerOfTwo(double n);
-void strassenR(vector<vector<double>> &A,
-               vector<vector<double>> &B,
-               vector<vector<double>> &C,
-               int tam);
-void sum(vector<vector<double>> &A,
-         vector<vector<double>> &B,
-         vector<vector<double>> &C, int tam);
-// void subtract(vector<vector<double>> &A,
-//               vector<vector<double>> &B,
-//               vector<vector<double>> &C, int tam);
+//size at which the sequential multiplication is used instead of recursive Strassen
+int thresholdSize = 2;
 
-void ikjalgorithm(vector<vector<double>> A,
-                  vector<vector<double>> B,
-                  vector<vector<double>> &C, int n)
+void initMat(vector<vector<double>> &a, vector<vector<double>> &b, int n)
 {
-    for (int i = 0; i < n; i++)
+    // initialize matrices and fill them with random values
+    for (int i = 0; i < n; ++i)
     {
-        for (int k = 0; k < n; k++)
+        for (int j = 0; j < n; ++j)
         {
-            for (int j = 0; j < n; j++)
+            a[i][j] = (double)rand() / RAND_MAX * 10;
+            b[i][j] = (double)rand() / RAND_MAX * 10;
+        }
+    }
+}
+
+void multiplyMatStandard(vector<vector<double>> &a,
+                         vector<vector<double>> &b, vector<vector<double>> &c, int n)
+{
+    // standard matrix multiplication: C <- C + A x B
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < n; ++j)
+        {
+            double temp = 0;
+            for (int k = 0; k < n; ++k)
             {
-                C[i][j] += A[i][k] * B[k][j];
+                temp += a[i][k] * b[k][j];
             }
+            c[i][j] = temp;
         }
     }
 }
 
-void sum(vector<vector<double>> &A,
-         vector<vector<double>> &B,
-         vector<vector<double>> &C, int tam)
-{
-    int i, j;
-
-    for (i = 0; i < tam; i++)
-    {
-        for (j = 0; j < tam; j++)
-        {
-            C[i][j] = A[i][j] + B[i][j];
-        }
-    }
-}
-
-unsigned int customNextPowerOfTwo(int n)
+int getNextPowerOfTwo(int n)
 {
     return pow(2, int(ceil(log2(n))));
 }
 
-void subtract(vector<vector<double>> &A,
-              vector<vector<double>> &B,
-              vector<vector<double>> &C, int tam)
+void fillZeros(vector<vector<double>> &newA, vector<vector<double>> &newB,
+               vector<vector<double>> &a, vector<vector<double>> &b, int n)
 {
-    int i, j;
-
-    for (i = 0; i < tam; i++)
+    //pad matrix with zeros
+    for (int i = 0; i < n; i++)
     {
-        for (j = 0; j < tam; j++)
+        for (int j = 0; j < n; j++)
         {
-            C[i][j] = A[i][j] - B[i][j];
+            newA[i][j] = a[i][j];
+            newB[i][j] = b[i][j];
         }
     }
 }
-void strassenR(vector<vector<double>> &A,
-               vector<vector<double>> &B,
-               vector<vector<double>> &C, int tam)
-{
-    if (tam <= leafsize)
-    {
-        ikjalgorithm(A, B, C, tam);
-        return;
-    }
 
-    // other cases are treated here:
+void add(vector<vector<double>> &a, vector<vector<double>> &b,
+         vector<vector<double>> &resultMatrix, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            resultMatrix[i][j] = a[i][j] + b[i][j];
+        }
+    }
+}
+
+void subtract(vector<vector<double>> &a, vector<vector<double>> &b,
+              vector<vector<double>> &resultMatrix, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            resultMatrix[i][j] = a[i][j] - b[i][j];
+        }
+    }
+}
+
+void multiplyStrassen(vector<vector<double>> &a,
+                      vector<vector<double>> &b, vector<vector<double>> &c, int n)
+{
+    if (n <= thresholdSize)
+    {
+        multiplyMatStandard(a, b, c, n);
+    }
     else
     {
-        int newTam = tam / 2;
-        vector<double> inner(newTam);
+        //expand and fill with zeros if matrix size is not a power of two
+        int newSize = getNextPowerOfTwo(n);
         vector<vector<double>>
-            a11(newTam, inner), a12(newTam, inner), a21(newTam, inner), a22(newTam, inner),
-            b11(newTam, inner), b12(newTam, inner), b21(newTam, inner), b22(newTam, inner),
-            c11(newTam, inner), c12(newTam, inner), c21(newTam, inner), c22(newTam, inner),
-            p1(newTam, inner), p2(newTam, inner), p3(newTam, inner), p4(newTam, inner),
-            p5(newTam, inner), p6(newTam, inner), p7(newTam, inner),
-            aResult(newTam, inner), bResult(newTam, inner);
-
-        int i, j;
-
-        //dividing the matrices in 4 sub-matrices:
-        for (i = 0; i < newTam; i++)
+            newA(newSize, vector<double>(newSize)),
+            newB(newSize, vector<double>(newSize)),
+            newC(newSize, vector<double>(newSize));
+        if (n == newSize)
+        { //matrix size is already a power of two
+            newA = a;
+            newB = b;
+        }
+        else
         {
-            for (j = 0; j < newTam; j++)
-            {
-                a11[i][j] = A[i][j];
-                a12[i][j] = A[i][j + newTam];
-                a21[i][j] = A[i + newTam][j];
-                a22[i][j] = A[i + newTam][j + newTam];
+            fillZeros(newA, newB, a, b, n);
+        }
 
-                b11[i][j] = B[i][j];
-                b12[i][j] = B[i][j + newTam];
-                b21[i][j] = B[i + newTam][j];
-                b22[i][j] = B[i + newTam][j + newTam];
+        //initialize submatrices
+        int blockSize = newSize / 2; //size for a partition matrix
+        vector<double> block(blockSize);
+        vector<vector<double>>
+            /*partitions of newA*/
+            a11(blockSize, block), a12(blockSize, block),
+            a21(blockSize, block), a22(blockSize, block),
+            /*partitions of newB*/
+            b11(blockSize, block), b12(blockSize, block),
+            b21(blockSize, block), b22(blockSize, block),
+            /*partitions of newC*/
+            c11(blockSize, block), c12(blockSize, block),
+            c21(blockSize, block), c22(blockSize, block),
+            /*matrices storing intermediate results*/
+            aBlock(blockSize, block), bBlock(blockSize, block),
+            /*set of submatrices derived from partitions*/
+            m1(blockSize, block), m2(blockSize, block),
+            m3(blockSize, block), m4(blockSize, block),
+            m5(blockSize, block), m6(blockSize, block),
+            m7(blockSize, block);
+
+        //partition matrices
+        for (int i = 0; i < blockSize; i++)
+        {
+            for (int j = 0; j < blockSize; j++)
+            {
+                a11[i][j] = newA[i][j];
+                a12[i][j] = newA[i][j + blockSize];
+                a21[i][j] = newA[i + blockSize][j];
+                a22[i][j] = newA[i + blockSize][j + blockSize];
+                b11[i][j] = newB[i][j];
+                b12[i][j] = newB[i][j + blockSize];
+                b21[i][j] = newB[i + blockSize][j];
+                b22[i][j] = newB[i + blockSize][j + blockSize];
             }
         }
 
-        // Calculating p1 to p7:
+        //compute submatrices
+        //m1 = (a11+a22)(b11+b22)
+        add(a11, a22, aBlock, blockSize);
+        add(b11, b22, bBlock, blockSize);
+        multiplyStrassen(aBlock, bBlock, m1, blockSize);
 
-        sum(a11, a22, aResult, newTam);          // a11 + a22
-        sum(b11, b22, bResult, newTam);          // b11 + b22
-        strassenR(aResult, bResult, p1, newTam); // p1 = (a11+a22) * (b11+b22)
+        //m2 = (a21+a22)b11
+        add(a21, a22, aBlock, blockSize);
+        multiplyStrassen(aBlock, b11, m2, blockSize);
 
-        sum(a21, a22, aResult, newTam);      // a21 + a22
-        strassenR(aResult, b11, p2, newTam); // p2 = (a21+a22) * (b11)
+        //m3 = a11(b12-b22)
+        subtract(b12, b22, bBlock, blockSize);
+        multiplyStrassen(a11, bBlock, m3, blockSize);
 
-        subtract(b12, b22, bResult, newTam); // b12 - b22
-        strassenR(a11, bResult, p3, newTam); // p3 = (a11) * (b12 - b22)
+        //m4 = a22(b21-b11)
+        subtract(b21, b11, bBlock, blockSize);
+        multiplyStrassen(a22, bBlock, m4, blockSize);
 
-        subtract(b21, b11, bResult, newTam); // b21 - b11
-        strassenR(a22, bResult, p4, newTam); // p4 = (a22) * (b21 - b11)
+        //m5 = (a11+a12)b22
+        add(a11, a12, aBlock, blockSize);
+        multiplyStrassen(aBlock, b22, m5, blockSize);
 
-        sum(a11, a12, aResult, newTam);      // a11 + a12
-        strassenR(aResult, b22, p5, newTam); // p5 = (a11+a12) * (b22)
+        //m6 = (a21-a11)(b11+b12)
+        subtract(a21, a11, aBlock, blockSize);
+        add(b11, b12, bBlock, blockSize);
+        multiplyStrassen(aBlock, bBlock, m6, blockSize);
 
-        subtract(a21, a11, aResult, newTam);     // a21 - a11
-        sum(b11, b12, bResult, newTam);          // b11 + b12
-        strassenR(aResult, bResult, p6, newTam); // p6 = (a21-a11) * (b11+b12)
+        //m7 = (a12-a22)(b12+b22)
+        subtract(a12, a22, aBlock, blockSize);
+        add(b12, b22, bBlock, blockSize);
+        multiplyStrassen(aBlock, bBlock, m7, blockSize);
 
-        subtract(a12, a22, aResult, newTam);     // a12 - a22
-        sum(b21, b22, bResult, newTam);          // b21 + b22
-        strassenR(aResult, bResult, p7, newTam); // p7 = (a12-a22) * (b21+b22)
+        //calculate result submatrices
+        //c11 = m1+m4-m5+m7
+        add(m1, m4, aBlock, blockSize);
+        subtract(aBlock, m5, bBlock, blockSize);
+        add(bBlock, m7, c11, blockSize);
 
-        // calculating c21, c21, c11 e c22:
+        //c12 = m3+m5
+        add(m3, m5, c12, blockSize);
 
-        sum(p3, p5, c12, newTam); // c12 = p3 + p5
-        sum(p2, p4, c21, newTam); // c21 = p2 + p4
+        //c21 = m2+m4
+        add(m2, m4, c12, blockSize);
 
-        sum(p1, p4, aResult, newTam);       // p1 + p4
-        sum(aResult, p7, bResult, newTam);  // p1 + p4 + p7
-        subtract(bResult, p5, c11, newTam); // c11 = p1 + p4 - p5 + p7
+        //c22 = m1-m2+m3+m6
+        subtract(m1, m2, aBlock, blockSize);
+        add(aBlock, m3, bBlock, blockSize);
+        add(bBlock, m6, c22, blockSize);
 
-        sum(p1, p3, aResult, newTam);       // p1 + p3
-        sum(aResult, p6, bResult, newTam);  // p1 + p3 + p6
-        subtract(bResult, p2, c22, newTam); // c22 = p1 + p3 - p2 + p6
-
-        // Grouping the results obtained in a single matrix:
-        for (i = 0; i < newTam; i++)
+        //calculate final result matrix
+        for (int i = 0; i < blockSize; i++)
         {
-            for (j = 0; j < newTam; j++)
+            for (int j = 0; j < blockSize; j++)
             {
-                C[i][j] = c11[i][j];
-                C[i][j + newTam] = c12[i][j];
-                C[i + newTam][j] = c21[i][j];
-                C[i + newTam][j + newTam] = c22[i][j];
+                newC[i][j] = c11[i][j];
+                newC[i][blockSize + j] = c12[i][j];
+                newC[blockSize + i][j] = c21[i][j];
+                newC[blockSize + i][blockSize + j] = c22[i][j];
+            }
+        }
+
+        //remove additional values from expanded matrix
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                c[i][j] = newC[i][j];
             }
         }
     }
 }
 
-void strassen(vector<vector<double>> &A,
-              vector<vector<double>> &B,
-              vector<vector<double>> &C, unsigned int n)
+double calculateMean(vector<double> data, int size)
 {
-    //unsigned int n = tam;
-    unsigned int m = customNextPowerOfTwo(n);
-    vector<double> inner(m);
-    vector<vector<double>> APrep(m, inner), BPrep(m, inner), CPrep(m, inner);
-
-    for (unsigned int i = 0; i < n; i++)
+    double sum = 0.0, mean = 0.0;
+    for (int i = 0; i < size; ++i)
     {
-        for (unsigned int j = 0; j < n; j++)
-        {
-            APrep[i][j] = A[i][j];
-            BPrep[i][j] = B[i][j];
-        }
+        sum += data[i];
     }
 
-    strassenR(APrep, BPrep, CPrep, m);
-    for (unsigned int i = 0; i < n; i++)
-    {
-        for (unsigned int j = 0; j < n; j++)
-        {
-            C[i][j] = CPrep[i][j];
-        }
-    }
+    mean = sum / size;
+    return mean;
 }
 
 void recordTimes(string filename)
@@ -218,12 +240,12 @@ void recordTimes(string filename)
     vector<vector<double>> matrix = fill_matrix(directory);
     vector<vector<double>> res(matrix.size(), vector<double>(matrix[0].size(), 0.));
 
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 5; i++)
     {
-        auto start = high_resolution_clock::now();
-        strassen(matrix, matrix, res, matrix.size());
-        auto stop = high_resolution_clock::now();
-        auto duration = duration_cast<milliseconds>(stop - start);
+        auto start = chrono::high_resolution_clock::now();
+        multiplyStrassen(matrix, matrix, res, matrix.size());
+        auto stop = chrono::high_resolution_clock::now();
+        auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
         myfile << "cpp,strassen," << filename << "," << res.size() << "," << duration.count() << "\n";
     }
     myfile.close();
@@ -231,11 +253,12 @@ void recordTimes(string filename)
 
 int main()
 {
+
+    recordTimes("Hamrle1.mtx");
+    recordTimes("GD99_b.mtx");
     recordTimes("can_256.mtx");
-    // recordTimes("bcspwr05.mtx");
-    // recordTimes("bcspwr07.mtx");
-    // recordTimes("bcspwr08.mtx");
-    // recordTimes("bcsstk08.mtx");
+    recordTimes("dwa512.mtx");
+    recordTimes("delaunay_n10.mtx");
 }
-// ! https://bitsploit.blogspot.com/2017/07/optimizing-matrix-multiplication-using.html
-//! g++ strassen.cpp readFile.cpp -o out
+
+// https://bitsploit.blogspot.com/2017/07/optimizing-matrix-multiplication-using.html

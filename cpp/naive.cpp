@@ -31,7 +31,7 @@ void recordTimes(string filename)
     vector<vector<double>> matrix = fill_matrix(directory);
     vector<vector<double>> res(matrix.size(), vector<double>(matrix[0].size(), 0.));
 
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 5; i++)
     {
         auto start = high_resolution_clock::now();
         naive_multiply(matrix, matrix, res);
@@ -44,11 +44,11 @@ void recordTimes(string filename)
 
 int main()
 {
+    recordTimes("Hamrle1.mtx");
+    recordTimes("GD99_b.mtx");
+    recordTimes("can_256.mtx");
+    recordTimes("dwa512.mtx");
     recordTimes("delaunay_n10.mtx");
-    // recordTimes("bcspwr05.mtx");
-    // recordTimes("bcspwr07.mtx");
-    // recordTimes("bcspwr08.mtx");
-    // recordTimes("bcsstk08.mtx");
 }
 
 //! g++ naive.cpp readFile.cpp -o out

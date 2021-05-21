@@ -23,21 +23,24 @@ function writeTimes(n, file, func, functionName)
 end
 
 function runBenchmarks()
-    # writeTimes(5, "can_256.mtx", mult, "strassen")
-    writeTimes(5, "can_256.mtx", mult, "strassen")
-    # writeTimes(5,"delaunay_n10.mtx", )
-    # writeTimes(5,"dw256B.mtx", )
-    # writeTimes(5,"dwa512.mtx", )
-    # writeTimes(5,"can_256.mtx", )
-    # writeTimes(5,"dwt_512.mtx", )
-    # writeTimes(5,"GD99_b.mtx", )
-    # writeTimes(5,"gre_512.mtx", )
-    # writeTimes(5,"Hamrle1.mtx", )
-    # writeTimes(5,"ibm32.mtx", )
-
-    # matrix = MatrixMarket.mmread("../matrices/can_256.mtx")
-    # print(matrix)
-    # strassen(matrix, matrix)
+    # naive
+    writeTimes(5, "Hamrle1.mtx", naiveMultiply, "naive")
+    writeTimes(5, "GD99_b.mtx", naiveMultiply, "naive")
+    writeTimes(5, "can_256.mtx", naiveMultiply, "naive")
+    writeTimes(5, "dwa512.mtx", naiveMultiply, "naive")
+    writeTimes(5, "delaunay_n10.mtx", naiveMultiply, "naive")
+    # strassens
+    writeTimes(5, "Hamrle1.mtx", strassens, "strassens")
+    writeTimes(5, "GD99_b.mtx", strassens, "strassens")
+    writeTimes(5, "can_256.mtx", strassens, "strassens")
+    writeTimes(5, "dwa512.mtx", strassens, "strassens")
+    writeTimes(5, "delaunay_n10.mtx", strassens, "strassens")
+    # dictionary of keys
+    writeTimes(5, "Hamrle1.mtx", sparseMultiplication, "sparse")
+    writeTimes(5, "GD99_b.mtx", sparseMultiplication, "sparse")
+    writeTimes(5, "can_256.mtx", sparseMultiplication, "sparse")
+    writeTimes(5, "dwa512.mtx", sparseMultiplication, "sparse")
+    writeTimes(5, "delaunay_n10.mtx", sparseMultiplication, "sparse")
 end
 
 runBenchmarks()

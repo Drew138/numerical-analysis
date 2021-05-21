@@ -75,11 +75,11 @@ void recordTimes(string filename)
 
 int main()
 {
+    recordTimes("Hamrle1.mtx");
+    recordTimes("GD99_b.mtx");
+    recordTimes("can_256.mtx");
+    recordTimes("dwa512.mtx");
     recordTimes("delaunay_n10.mtx");
-    // recordTimes("bcspwr05.mtx");
-    // recordTimes("bcspwr07.mtx");
-    // recordTimes("bcspwr08.mtx");
-    // recordTimes("bcsstk08.mtx");
 }
 
 //! g++ sparse.cpp readFile.cpp -o out

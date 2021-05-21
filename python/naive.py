@@ -10,8 +10,8 @@ def naive(A, B):
 
 if __name__ == '__main__':
 
+    recordTimes("Hamrle1.mtx", naive, "naive")
+    recordTimes("GD99_b.mtx", naive, "naive")
+    recordTimes("can_256.mtx", naive, "naive")
+    recordTimes("dwa512.mtx", naive, "naive")
     recordTimes("delaunay_n10.mtx", naive, "naive")
-    # recordTimes("bcspwr05.mtx", naive, "naive")
-    # recordTimes("bcspwr07.mtx", naive, "naive")
-    # recordTimes("bcspwr08.mtx", naive, "naive")
-    # recordTimes("bcsstk08.mtx", naive, "naive")
