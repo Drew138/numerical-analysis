@@ -11,7 +11,7 @@ function writeTimes(n, file, func, functionName)
     filename = dir * file
     matrix = MatrixMarket.mmread(filename)
     s = size(matrix)[1]
-    for _ in 0:n
+    for _ in 1:n
         t = @timed func(matrix, matrix)
         millis = t[2] * 1000
         dataframe = DataFrame(language=["julia"], algorithm=[functionName], 
@@ -24,23 +24,23 @@ end
 
 function runBenchmarks()
     # naive
-    writeTimes(5, "Hamrle1.mtx", naiveMultiply, "naive")
-    writeTimes(5, "GD99_b.mtx", naiveMultiply, "naive")
-    writeTimes(5, "can_256.mtx", naiveMultiply, "naive")
-    writeTimes(5, "dwa512.mtx", naiveMultiply, "naive")
-    writeTimes(5, "delaunay_n10.mtx", naiveMultiply, "naive")
-    # strassens
-    writeTimes(5, "Hamrle1.mtx", strassens, "strassens")
-    writeTimes(5, "GD99_b.mtx", strassens, "strassens")
-    writeTimes(5, "can_256.mtx", strassens, "strassens")
-    writeTimes(5, "dwa512.mtx", strassens, "strassens")
-    writeTimes(5, "delaunay_n10.mtx", strassens, "strassens")
+    # writeTimes(5, "Hamrle1.mtx", naiveMultiply, "naive")
+    # writeTimes(5, "GD99_b.mtx", naiveMultiply, "naive")
+    # writeTimes(5, "can_256.mtx", naiveMultiply, "naive")
+    # writeTimes(5, "dwa512.mtx", naiveMultiply, "naive")
+    # writeTimes(5, "delaunay_n10.mtx", naiveMultiply, "naive")
+    # # strassens
+    writeTimes(5, "Hamrle1.mtx", strassen, "strassens")
+    writeTimes(5, "GD99_b.mtx", strassen, "strassens")
+    writeTimes(5, "can_256.mtx", strassen, "strassens")
+    writeTimes(5, "dwa512.mtx", strassen, "strassens")
+    writeTimes(5, "delaunay_n10.mtx", strassen, "strassens")
     # dictionary of keys
-    writeTimes(5, "Hamrle1.mtx", sparseMultiplication, "sparse")
-    writeTimes(5, "GD99_b.mtx", sparseMultiplication, "sparse")
-    writeTimes(5, "can_256.mtx", sparseMultiplication, "sparse")
-    writeTimes(5, "dwa512.mtx", sparseMultiplication, "sparse")
-    writeTimes(5, "delaunay_n10.mtx", sparseMultiplication, "sparse")
+    # writeTimes(5, "Hamrle1.mtx", sparseMultiplication, "sparse")
+    # writeTimes(5, "GD99_b.mtx", sparseMultiplication, "sparse")
+    # writeTimes(5, "can_256.mtx", sparseMultiplication, "sparse")
+    # writeTimes(5, "dwa512.mtx", sparseMultiplication, "sparse")
+    # writeTimes(5, "delaunay_n10.mtx", sparseMultiplication, "sparse")
 end
 
 runBenchmarks()

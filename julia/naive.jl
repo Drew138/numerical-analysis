@@ -9,7 +9,7 @@ function naiveMultiply(A, B)
     A = Symmetric(sparse(A), :U)
     B = Symmetric(sparse(B), :U)
     n, m = size(A)
-    C = [[0 for a = 1:n] for b = 1:m]
+    C = [[0.0 for _ = 1:n] for _ = 1:m]
     for i = 1:n
         for j = 1:n
             for k = 1:n
