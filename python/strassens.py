@@ -60,8 +60,8 @@ def strassen(array_first, array_second):
 
 if __name__ == "__main__":
 
-    recordTimes("Hamrle1.mtx", strassen, "naive")
-    recordTimes("GD99_b.mtx", strassen, "naive")
-    recordTimes("can_256.mtx", strassen, "naive")
-    recordTimes("dwa512.mtx", strassen, "naive")
-    recordTimes("delaunay_n10.mtx", strassen, "naive")
+    # recordTimes("Hamrle1.mtx", strassen, "strassen")
+    # recordTimes("GD99_b.mtx", strassen, "strassen")
+    # recordTimes("can_256.mtx", strassen, "strassen")
+    # recordTimes("dwa512.mtx", strassen, "strassen")
+    recordTimes("delaunay_n10.mtx", strassen, "strassen")

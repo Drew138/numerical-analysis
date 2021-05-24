@@ -43,7 +43,7 @@ def recordTimes(filename, functionName):
     matrix = SparseMatrix.from_dense(matrix)
     with open("../benchmarks.csv", "a") as f:
         writer = csv.writer(f)
-        for _ in range(1):
+        for _ in range(5):
             start = time.time()
             matrix.multiply(matrix)
             end = time.time()
